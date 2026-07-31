@@ -61,3 +61,12 @@ app.listen(PORT, () => {
   console.log(`✅ Website Desa Cibuniwangi berjalan di http://localhost:${PORT}`);
   console.log(`🔐 Admin Dashboard: http://localhost:${PORT}/admin/login`);
 });
+// Di bagian akhir file app.js
+const PORT = process.env.PORT || 3000;
+
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+// WAJIB: Export app untuk Vercel Serverless Function
+module.exports = app;
