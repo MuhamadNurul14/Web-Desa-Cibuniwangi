@@ -17,7 +17,5 @@ function isSuperAdmin(req, res, next) {
 
 module.exports = {
   isAuthenticated,
-  isSuperAdmin,
-  // Alias tambahan jika ada file lain yang memanggil 'isAuth'
-  isAuth: isAuthenticated 
+  isSuperAdmin
 };
