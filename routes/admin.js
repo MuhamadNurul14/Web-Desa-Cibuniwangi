@@ -1,117 +1,357 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs');
-const path = require('path');
 
-// ---- Import Controllers ----
-let authController, dashboardController;
+
+// ================================
+// Import Controllers
+// ================================
+let authController;
+let dashboardController;
+let crudController;
+let settingsController;
+let userController;
+
 try {
   authController = require('../controllers/authController');
-} catch (e) {
-  console.warn("authController not loaded:", e.message);
+} catch (err) {
+  console.warn('authController:', err.message);
 }
 
 try {
   dashboardController = require('../controllers/dashboardController');
-} catch (e) {
-  console.warn("dashboardController not loaded:", e.message);
+} catch (err) {
+  console.warn('dashboardController:', err.message);
 }
 
-// ---- Inline Auth Middleware (Aman & Bebas TDZ Error) ----
-const checkAuth = (req, res, next) => {
-  // 1. Cek file middleware jika ada
-  try {
-    const authMw = require('../middleware/auth');
-    if (typeof authMw === 'function') return authMw(req, res, next);
-    if (authMw && typeof authMw.isAuthenticated === 'function') {
-      return authMw.isAuthenticated(req, res, next);
-    }
-  } catch (e) {
-    // Middleware file tidak ditemukan/error, lanjut ke fallback session
-  }
+try {
+  crudController = require('../controllers/crudController');
+} catch (err) {
+  console.warn('crudController:', err.message);
+}
 
-  // 2. Fallback: Cek session manual
-  if (req.session && req.session.user) {
+try {
+  settingsController = require('../controllers/settingsController');
+} catch (err) {
+  console.warn('settingsController:', err.message);
+}
+
+try {
+  userController = require('../controllers/userController');
+} catch (err) {
+  console.warn('userController:', err.message);
+}
+
+
+
+// ================================
+// Authentication Middleware
+// ================================
+const checkAuth = (req, res, next) => {
+
+  try {
+
+    const auth = require('../middleware/auth');
+
+    if (typeof auth === 'function') {
+      return auth(req, res, next);
+    }
+
+    if (auth?.isAuthenticated) {
+      return auth.isAuthenticated(req, res, next);
+    }
+
+  } catch (err) {}
+
+
+  if (req.session?.user) {
     return next();
   }
 
-  if (req.flash) req.flash('error', 'Silakan login terlebih dahulu.');
+
+  req.flash(
+    'error',
+    'Silakan login terlebih dahulu.'
+  );
+
   return res.redirect('/admin/login');
 };
 
-// ==================================================
-// 1. PUBLIC ADMIN ROUTES (Tanpa Login)
-// ==================================================
 
-// Render Halaman Login
-router.get('/login', (req, res, next) => {
-  if (authController && typeof authController.renderLogin === 'function') {
-    return authController.renderLogin(req, res);
+
+// ================================
+// PUBLIC ADMIN
+// ================================
+
+
+// Halaman Login
+router.get('/login', (req, res) => {
+
+  if (authController?.renderLogin) {
+    return authController.renderLogin(req,res);
   }
-  if (authController && typeof authController.loginPage === 'function') {
-    return authController.loginPage(req, res);
+
+
+  if (authController?.loginPage) {
+    return authController.loginPage(req,res);
   }
-  res.render('admin/login', { layout: false, title: 'Login Admin' });
+
+
+  res.render('admin/login',{
+    layout:false,
+    title:'Login Admin'
+  });
+
 });
 
-// Eksekusi Login
-router.post('/login', (req, res, next) => {
-  if (authController && typeof authController.login === 'function') {
-    return authController.login(req, res, next);
+
+// Proses Login
+router.post('/login',(req,res,next)=>{
+
+  if(authController?.login){
+    return authController.login(req,res,next);
   }
+
+
   res.redirect('/admin/login');
+
 });
+
 
 // Logout
-router.get('/logout', (req, res, next) => {
-  if (authController && typeof authController.logout === 'function') {
-    return authController.logout(req, res, next);
+router.get('/logout',(req,res,next)=>{
+
+  if(authController?.logout){
+    return authController.logout(req,res,next);
   }
-  if (req.session) {
-    req.session.destroy(() => res.redirect('/admin/login'));
-  } else {
+
+
+  req.session.destroy(()=>{
     res.redirect('/admin/login');
-  }
+  });
+
 });
 
-// ==================================================
-// 2. PROTECTED ADMIN ROUTES (Wajib Login)
-// ==================================================
+
+
+
+// ================================
+// PROTECTED ADMIN
+// ================================
+
 router.use(checkAuth);
 
-// Root `/admin` -> Redirect otomatis ke `/admin/dashboard`
-router.get('/', (req, res) => {
+
+
+router.get('/',(req,res)=>{
+
   res.redirect('/admin/dashboard');
+
 });
 
-// Halaman Dashboard Utama
-router.get('/dashboard', (req, res, next) => {
-  if (dashboardController && typeof dashboardController.index === 'function') {
-    return dashboardController.index(req, res, next);
+
+
+// Dashboard
+router.get('/dashboard',(req,res,next)=>{
+
+  if(dashboardController?.index){
+    return dashboardController.index(req,res,next);
   }
-  res.render('admin/dashboard', { 
-    title: 'Dashboard Admin',
-    user: req.session ? req.session.user : null 
+
+
+  res.render('admin/dashboard',{
+    title:'Dashboard',
+    user:req.session.user
   });
+
 });
 
-// ==================================================
-// 3. DYNAMIC ROUTE AUTO-LOADER (Mencegah 404 Semua Menu Admin)
-// ==================================================
-router.get('/:page', (req, res, next) => {
-  const page = req.params.page;
-  const viewPath = path.join(__dirname, '../views/admin', `${page}.ejs`);
 
-  // Cek apakah file template .ejs benar-benar ada di disk
-  if (fs.existsSync(viewPath)) {
-    return res.render(`admin/${page}`, {
-      title: page.replace(/_/g, ' ').toUpperCase(),
-      user: req.session ? req.session.user : null
-    });
+
+
+
+// ================================
+// CRUD MANAGEMENT
+// ================================
+
+
+// LIST DATA
+router.get('/crud/:module',(req,res,next)=>{
+
+  if(crudController?.index){
+    return crudController.index(req,res,next);
   }
 
-  // Jika file .ejs tidak ditemukan, teruskan ke 404 handler di app.js
-  next();
+
+  res.render('admin/crud/index',{
+    title:req.params.module,
+    module:req.params.module,
+    data:[],
+    user:req.session.user
+  });
+
 });
+
+
+
+// FORM TAMBAH
+router.get('/crud/:module/create',(req,res,next)=>{
+
+  if(crudController?.create){
+    return crudController.create(req,res,next);
+  }
+
+
+  res.render('admin/crud/form',{
+    title:`Tambah ${req.params.module}`,
+    module:req.params.module,
+    data:{},
+    user:req.session.user
+  });
+
+});
+
+
+
+// SIMPAN DATA
+router.post('/crud/:module',(req,res,next)=>{
+
+  if(crudController?.store){
+    return crudController.store(req,res,next);
+  }
+
+
+  res.redirect(`/admin/crud/${req.params.module}`);
+
+});
+
+
+
+// FORM EDIT
+router.get('/crud/:module/:id/edit',(req,res,next)=>{
+
+
+  if(crudController?.edit){
+    return crudController.edit(req,res,next);
+  }
+
+
+  res.render('admin/crud/form',{
+    title:`Edit ${req.params.module}`,
+    module:req.params.module,
+    data:{},
+    user:req.session.user
+  });
+
+});
+
+
+
+// UPDATE DATA
+router.put('/crud/:module/:id',(req,res,next)=>{
+
+  if(crudController?.update){
+    return crudController.update(req,res,next);
+  }
+
+
+  res.redirect(`/admin/crud/${req.params.module}`);
+
+});
+
+
+
+// DELETE DATA
+router.delete('/crud/:module/:id',(req,res,next)=>{
+
+  if(crudController?.destroy){
+    return crudController.destroy(req,res,next);
+  }
+
+
+  res.redirect(`/admin/crud/${req.params.module}`);
+
+});
+
+
+
+
+
+// ================================
+// SETTINGS
+// ================================
+
+router.get('/settings/profile',(req,res,next)=>{
+
+  if(settingsController?.profile){
+    return settingsController.profile(req,res,next);
+  }
+
+
+  res.render('admin/settings/profile',{
+    title:'Profile Desa',
+    user:req.session.user
+  });
+
+});
+
+
+
+router.get('/settings/kontak',(req,res,next)=>{
+
+  if(settingsController?.kontak){
+    return settingsController.kontak(req,res,next);
+  }
+
+
+  res.render('admin/settings/kontak',{
+    title:'Kontak Desa',
+    user:req.session.user
+  });
+
+});
+
+
+
+
+
+// ================================
+// USER MANAGEMENT
+// ================================
+
+router.get('/users',(req,res,next)=>{
+
+  if(userController?.index){
+    return userController.index(req,res,next);
+  }
+
+
+  res.render('admin/users/index',{
+    title:'Management User',
+    user:req.session.user
+  });
+
+});
+
+
+
+
+// ================================
+// STATIC ADMIN PAGE FALLBACK
+// ================================
+
+router.get('/:page',(req,res)=>{
+
+  const page=req.params.page;
+
+
+  res.render('admin/coming-soon',{
+    title:page.replace(/[-_]/g,' '),
+    page,
+    user:req.session.user
+  });
+
+});
+
+
 
 module.exports = router;
