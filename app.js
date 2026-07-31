@@ -24,11 +24,17 @@ app.use(methodOverride('_method'));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.set('trust proxy', 1);
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'cibuniwangi_secret',
+  secret: process.env.SESSION_SECRET || 'secret-key-desa-cibuniwangi',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 1000 * 60 * 60 * 8 } // 8 hours
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production', // Wajib true di Vercel (HTTPS)
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000 // 1 hari
+  }
 }));
 
 app.use(flash());

@@ -10,4 +10,12 @@ function isSuperAdmin(req, res, next) {
   return res.redirect('/admin/dashboard');
 }
 
-module.exports = { isAuthenticated, isSuperAdmin };
+module.exports = {
+  isAuth: (req, res, next) => {
+    if (req.session && req.session.user) {
+      return next();
+    }
+    req.flash('error', 'Silakan login terlebih dahulu.');
+    res.redirect('/admin/login');
+  }
+};
