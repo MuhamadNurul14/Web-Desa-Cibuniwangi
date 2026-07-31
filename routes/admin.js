@@ -56,14 +56,15 @@ router.get('/logout', (req, res, next) => {
 });
 
 // 4. Admin Dashboard Page
-router.get('/dashboard', checkAuth, (req, res, next) => {
+router.get('/dashboard', checkAuth, (req, res) => {
   if (dashboardController && typeof dashboardController.index === 'function') {
-    return dashboardController.index(req, res, next);
+    return dashboardController.index(req, res);
   }
-  if (dashboardController && typeof dashboardController.dashboard === 'function') {
-    return dashboardController.dashboard(req, res, next);
-  }
-  res.render('admin/dashboard', { user: req.session ? req.session.user : null });
+  // Pastikan path render mengarah ke views/admin/dashboard.ejs (atau views/admin/index.ejs)
+  res.render('admin/dashboard', { 
+    title: 'Dashboard Admin',
+    user: req.session ? req.session.user : null 
+  });
 });
 
 module.exports = router;

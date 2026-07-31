@@ -59,13 +59,30 @@ app.use('/admin', (req, res, next) => {
   next();
 }, adminRoutes);
 
+// 2. Public Routes (Menggunakan Router terpisah)
 app.use('/', (req, res, next) => {
+  // Jika URL diawali /admin tapi tidak matched di adminRoutes, biarkan lewat atau handle 404
+  if (req.path.startsWith('/admin')) {
+    return next();
+  }
   res.locals.layout = 'public/layout';
   next();
 }, publicRoutes);
 
 // ---- 404 Handler ----
 app.use((req, res) => {
+  // Jika URL yang 404 adalah bagian dari /admin
+  if (req.originalUrl.startsWith('/admin')) {
+    return res.status(404).send(`
+      <div style="padding: 40px; font-family: sans-serif; text-align: center;">
+        <h2>404 - Halaman Admin Tidak Ditemukan</h2>
+        <p>Route <code>${req.originalUrl}</code> belum terdaftar di <code>routes/admin.js</code>.</p>
+        <a href="/admin/login">Kembali ke Login</a>
+      </div>
+    `);
+  }
+
+  // Fallback 404 untuk Public
   res.status(404).render('public/404', {
     title: 'Halaman Tidak Ditemukan',
     profile: {},
