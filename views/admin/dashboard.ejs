@@ -1,46 +1,122 @@
+<!-- STATS OVERVIEW CARDS -->
 <div class="row g-3 mb-4">
   <% for (const key in stats) { %>
     <div class="col-md-3 col-sm-6">
-      <div class="card card-stat p-3">
-        <div class="text-muted small"><%= stats[key].label %></div>
-        <div class="fs-3 fw-bold"><%= stats[key].total %></div>
+      <div class="card card-stat p-3 h-100 border-0 shadow-sm position-relative overflow-hidden">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted small fw-semibold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+              <%= stats[key].label %>
+            </div>
+            <div class="fs-2 fw-bold text-dark mt-1"><%= stats[key].total %></div>
+          </div>
+          <div class="rounded-circle bg-primary bg-opacity-10 p-3 text-primary d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+            <i class="bi bi-graph-up-arrow fs-5"></i>
+          </div>
+        </div>
       </div>
     </div>
   <% } %>
 </div>
 
+<!-- RECENT ACTIVITY PANELS -->
 <div class="row g-3">
+  
+  <!-- Berita Terbaru -->
   <div class="col-md-4">
-    <div class="card card-stat p-3">
-      <h6 class="mb-3"><i class="bi bi-newspaper"></i> Berita Terbaru</h6>
-      <% if (recentBerita.length === 0) { %><p class="text-muted small">Belum ada berita.</p><% } %>
-      <ul class="list-unstyled small">
-        <% recentBerita.forEach(b => { %>
-          <li class="mb-2 border-bottom pb-2"><%= b.judul %><br><span class="text-muted"><%= b.status %></span></li>
-        <% }) %>
-      </ul>
+    <div class="card card-stat p-3 border-0 shadow-sm h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
+          <i class="bi bi-newspaper text-primary"></i> Berita Terbaru
+        </h6>
+        <a href="/admin/berita" class="text-decoration-none small fw-semibold">Lihat Semua</a>
+      </div>
+
+      <% if (!recentBerita || recentBerita.length === 0) { %>
+        <div class="text-center text-muted py-4 small">
+          <i class="bi bi-inbox fs-3 d-block mb-1 text-secondary opacity-50"></i>
+          Belum ada berita.
+        </div>
+      <% } else { %>
+        <ul class="list-group list-group-flush small">
+          <% recentBerita.forEach(b => { %>
+            <li class="list-group-item px-0 py-2 border-bottom-dashed d-flex justify-content-between align-items-start">
+              <div class="me-2">
+                <span class="fw-semibold text-dark d-block text-truncate" style="max-width: 190px;">
+                  <%= b.judul %>
+                </span>
+                <small class="text-muted" style="font-size: 0.75rem;">
+                  <%= b.createdAt ? new Date(b.createdAt).toLocaleDateString('id-ID') : '' %>
+                </small>
+              </div>
+              <span class="badge <%= b.status === 'published' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning' %> text-capitalize">
+                <%= b.status %>
+              </span>
+            </li>
+          <% }) %>
+        </ul>
+      <% } %>
     </div>
   </div>
+
+  <!-- Pengajuan Layanan Baru -->
   <div class="col-md-4">
-    <div class="card card-stat p-3">
-      <h6 class="mb-3"><i class="bi bi-inbox"></i> Pengajuan Layanan Baru</h6>
-      <% if (pengajuanBaru.length === 0) { %><p class="text-muted small">Tidak ada pengajuan baru.</p><% } %>
-      <ul class="list-unstyled small">
-        <% pengajuanBaru.forEach(p => { %>
-          <li class="mb-2 border-bottom pb-2"><%= p.nama_pemohon %><br><span class="text-muted"><%= p.keperluan %></span></li>
-        <% }) %>
-      </ul>
+    <div class="card card-stat p-3 border-0 shadow-sm h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
+          <i class="bi bi-file-earmark-arrow-up text-warning"></i> Pengajuan Layanan
+        </h6>
+        <a href="/admin/pengajuan_layanan" class="text-decoration-none small fw-semibold">Lihat Semua</a>
+      </div>
+
+      <% if (!pengajuanBaru || pengajuanBaru.length === 0) { %>
+        <div class="text-center text-muted py-4 small">
+          <i class="bi bi-check-circle fs-3 d-block mb-1 text-secondary opacity-50"></i>
+          Tidak ada pengajuan baru.
+        </div>
+      <% } else { %>
+        <ul class="list-group list-group-flush small">
+          <% pengajuanBaru.forEach(p => { %>
+            <li class="list-group-item px-0 py-2 border-bottom-dashed">
+              <div class="fw-semibold text-dark"><%= p.nama_pemohon %></div>
+              <div class="text-muted text-truncate" style="font-size: 0.8rem; max-width: 230px;">
+                <%= p.keperluan %>
+              </div>
+            </li>
+          <% }) %>
+        </ul>
+      <% } %>
     </div>
   </div>
+
+  <!-- Pesan Masuk Baru -->
   <div class="col-md-4">
-    <div class="card card-stat p-3">
-      <h6 class="mb-3"><i class="bi bi-envelope"></i> Pesan Masuk Baru</h6>
-      <% if (pesanBaru.length === 0) { %><p class="text-muted small">Tidak ada pesan baru.</p><% } %>
-      <ul class="list-unstyled small">
-        <% pesanBaru.forEach(p => { %>
-          <li class="mb-2 border-bottom pb-2"><%= p.nama %> — <%= p.subjek %></li>
-        <% }) %>
-      </ul>
+    <div class="card card-stat p-3 border-0 shadow-sm h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0 text-dark d-flex align-items-center gap-2">
+          <i class="bi bi-envelope-paper text-info"></i> Pesan Masuk
+        </h6>
+        <a href="/admin/kontak_pesan" class="text-decoration-none small fw-semibold">Lihat Semua</a>
+      </div>
+
+      <% if (!pesanBaru || pesanBaru.length === 0) { %>
+        <div class="text-center text-muted py-4 small">
+          <i class="bi bi-envelope-open fs-3 d-block mb-1 text-secondary opacity-50"></i>
+          Tidak ada pesan baru.
+        </div>
+      <% } else { %>
+        <ul class="list-group list-group-flush small">
+          <% pesanBaru.forEach(p => { %>
+            <li class="list-group-item px-0 py-2 border-bottom-dashed">
+              <div class="fw-semibold text-dark"><%= p.nama %></div>
+              <div class="text-muted text-truncate" style="font-size: 0.8rem; max-width: 230px;">
+                <%= p.subjek %>
+              </div>
+            </li>
+          <% }) %>
+        </ul>
+      <% } %>
     </div>
   </div>
+
 </div>

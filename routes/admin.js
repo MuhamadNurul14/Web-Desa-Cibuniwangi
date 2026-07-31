@@ -41,7 +41,7 @@ Object.keys(modules).forEach(moduleKey => {
   const ctrl = crudController(moduleKey);
   const base = `/${moduleKey}`;
   const uploadField = ctrl.cfg.uploadField;
-  const uploadMw = uploadField ? upload.single(uploadField) : (req, res, next) => next();
+  const uploadMw = uploadField ? upload.single(uploadField) : upload.none();
 
   router.get(base, ctrl.index);
   router.get(`${base}/create`, ctrl.create);
