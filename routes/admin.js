@@ -34,13 +34,19 @@ router.get('/login', (req, res) => {
 });
 
 // 2. Process Login
-router.post('/login', (req, res, next) => {
-  if (authController && typeof authController.login === 'function') {
-    return authController.login(req, res, next);
+// Render Halaman Login
+router.get('/login', (req, res, next) => {
+  if (authController && typeof authController.renderLogin === 'function') {
+    return authController.renderLogin(req, res);
   }
-  res.status(500).send("Auth controller login function missing");
+  if (authController && typeof authController.loginPage === 'function') {
+    return authController.loginPage(req, res);
+  }
+  res.render('admin/login', { layout: false, title: 'Login Admin' });
 });
 
+// Eksekusi Login
+router.post('/login', authController.login);
 // 3. Process Logout
 router.get('/logout', (req, res, next) => {
   if (authController && typeof authController.logout === 'function') {

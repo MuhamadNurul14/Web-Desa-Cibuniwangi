@@ -2,17 +2,20 @@ const bcrypt = require('bcryptjs');
 const GenericModel = require('../models/GenericModel');
 const Users = new GenericModel('users');
 
-exports.loginPage = (req, res) => {
-  // Pengecekan aman agar tidak crash jika req.session belum terinisialisasi
+exports.renderLogin = (req, res) => {
   if (req.session && req.session.user) {
     return res.redirect('/admin/dashboard');
   }
   
   res.render('admin/login', { 
     layout: false, 
+    title: 'Login Admin',
     error: req.flash ? req.flash('error') : [] 
   });
 };
+
+// Jaga-jaga jika ada route lain yang memanggil loginPage
+exports.loginPage = exports.renderLogin;
 
 exports.login = async (req, res) => {
   try {
