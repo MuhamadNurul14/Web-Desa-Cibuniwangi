@@ -1,0 +1,10 @@
+<div class="container my-5">
+  <h3 class="section-title">Struktur Organisasi</h3>
+  <% if (!struktur) { %>
+    <p class="text-muted">Bagan struktur organisasi belum diunggah.</p>
+  <% } else { %>
+    <h5><%= struktur.judul %></h5>
+    <img src="/uploads/<%= struktur.file_bagan %>" class="img-fluid rounded shadow-sm my-3">
+    <p><%= struktur.keterangan %></p>
+  <% } %>
+</div>

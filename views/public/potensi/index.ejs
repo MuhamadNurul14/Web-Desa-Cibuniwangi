@@ -1,0 +1,24 @@
+<div class="container my-5">
+  <h3 class="section-title">Potensi Desa</h3>
+
+  <% [['Komoditas',komoditas],['UMKM',umkm],['Wisata',wisata],['Lainnya',lainnya]].forEach(([label, arr]) => { %>
+    <h5 class="mt-4"><%= label %></h5>
+    <div class="row g-4 mb-3">
+      <% if (arr.length === 0) { %><p class="text-muted">Belum ada data.</p><% } %>
+      <% arr.forEach(p => { %>
+        <div class="col-md-4">
+          <div class="card card-item">
+            <% if (p.foto) { %><img src="/uploads/<%= p.foto %>" class="card-img-top" style="height:160px;object-fit:cover;border-radius:.8rem .8rem 0 0;"><% } %>
+            <div class="card-body">
+              <h6><%= p.nama %></h6>
+              <p class="small text-muted"><%= p.deskripsi %></p>
+              <p class="small mb-0"><i class="bi bi-geo-alt"></i> <%= p.alamat %></p>
+              <p class="small mb-0"><i class="bi bi-telephone"></i> <%= p.kontak %></p>
+              <p class="small"><i class="bi bi-tag"></i> <%= p.harga_range %></p>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% }) %>
+</div>

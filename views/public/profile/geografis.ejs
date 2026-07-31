@@ -1,0 +1,11 @@
+<div class="container my-5">
+  <h3 class="section-title">Geografis Desa</h3>
+  <p style="white-space:pre-line;"><%= profile.geografis || '-' %></p>
+  <div class="row mt-4">
+    <div class="col-md-3"><strong>Luas Wilayah:</strong> <%= profile.luas_wilayah || '-' %></div>
+    <div class="col-md-3"><strong>Batas Utara:</strong> <%= profile.batas_utara || '-' %></div>
+    <div class="col-md-3"><strong>Batas Selatan:</strong> <%= profile.batas_selatan || '-' %></div>
+    <div class="col-md-3"><strong>Batas Timur/Barat:</strong> <%= profile.batas_timur || '-' %> / <%= profile.batas_barat || '-' %></div>
+  </div>
+  <% if (profile.peta_embed) { %><div class="mt-4"><%- profile.peta_embed %></div><% } %>
+</div>

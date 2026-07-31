@@ -1,0 +1,62 @@
+<h5 class="mb-3"><i class="bi bi-info-circle"></i> Profile Desa</h5>
+<div class="card card-stat p-4">
+  <form action="/admin/profile-desa" method="POST" enctype="multipart/form-data">
+    <div class="row g-3">
+      <div class="col-md-8">
+        <label class="form-label">Nama Desa</label>
+        <input type="text" name="nama_desa" class="form-control" value="<%= profile.nama_desa || '' %>">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Logo Desa</label>
+        <input type="file" name="logo" class="form-control">
+        <% if (profile.logo) { %><img src="/uploads/<%= profile.logo %>" class="mt-2" style="max-height:60px;"><% } %>
+      </div>
+      <div class="col-12">
+        <label class="form-label">Tentang Kami</label>
+        <textarea name="tentang_kami" class="form-control" rows="4"><%= profile.tentang_kami || '' %></textarea>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Visi</label>
+        <textarea name="visi" class="form-control" rows="3"><%= profile.visi || '' %></textarea>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Misi</label>
+        <textarea name="misi" class="form-control" rows="3"><%= profile.misi || '' %></textarea>
+      </div>
+      <div class="col-12">
+        <label class="form-label">Sejarah Desa</label>
+        <textarea name="sejarah" class="form-control" rows="5"><%= profile.sejarah || '' %></textarea>
+      </div>
+      <div class="col-12">
+        <label class="form-label">Geografis Desa</label>
+        <textarea name="geografis" class="form-control" rows="4"><%= profile.geografis || '' %></textarea>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Luas Wilayah</label>
+        <input type="text" name="luas_wilayah" class="form-control" value="<%= profile.luas_wilayah || '' %>">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Batas Utara</label>
+        <input type="text" name="batas_utara" class="form-control" value="<%= profile.batas_utara || '' %>">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Batas Selatan</label>
+        <input type="text" name="batas_selatan" class="form-control" value="<%= profile.batas_selatan || '' %>">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Batas Timur</label>
+        <input type="text" name="batas_timur" class="form-control" value="<%= profile.batas_timur || '' %>">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Batas Barat</label>
+        <input type="text" name="batas_barat" class="form-control" value="<%= profile.batas_barat || '' %>">
+      </div>
+      <div class="col-12">
+        <label class="form-label">Embed Peta (iframe Google Maps)</label>
+        <textarea name="peta_embed" class="form-control" rows="2"><%= profile.peta_embed || '' %></textarea>
+      </div>
+    </div>
+    <hr class="my-4">
+    <button type="submit" class="btn btn-dark"><i class="bi bi-save"></i> Simpan Profile Desa</button>
+  </form>
+</div>

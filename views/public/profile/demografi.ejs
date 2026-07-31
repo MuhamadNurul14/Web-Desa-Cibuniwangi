@@ -1,0 +1,12 @@
+<div class="container my-5">
+  <h3 class="section-title">Demografi Desa</h3>
+  <table class="table table-bordered">
+    <thead><tr><th>Tahun</th><th>Jumlah Penduduk</th><th>Jumlah KK</th><th>Laki-laki</th><th>Perempuan</th><th>Keterangan</th></tr></thead>
+    <tbody>
+      <% if (data.length === 0) { %><tr><td colspan="6" class="text-center text-muted">Belum ada data.</td></tr><% } %>
+      <% data.forEach(d => { %>
+        <tr><td><%= d.tahun %></td><td><%= d.jumlah_penduduk %></td><td><%= d.jumlah_kk %></td><td><%= d.laki_laki %></td><td><%= d.perempuan %></td><td><%= d.keterangan %></td></tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>

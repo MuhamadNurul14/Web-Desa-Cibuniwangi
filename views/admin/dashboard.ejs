@@ -1,0 +1,46 @@
+<div class="row g-3 mb-4">
+  <% for (const key in stats) { %>
+    <div class="col-md-3 col-sm-6">
+      <div class="card card-stat p-3">
+        <div class="text-muted small"><%= stats[key].label %></div>
+        <div class="fs-3 fw-bold"><%= stats[key].total %></div>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="card card-stat p-3">
+      <h6 class="mb-3"><i class="bi bi-newspaper"></i> Berita Terbaru</h6>
+      <% if (recentBerita.length === 0) { %><p class="text-muted small">Belum ada berita.</p><% } %>
+      <ul class="list-unstyled small">
+        <% recentBerita.forEach(b => { %>
+          <li class="mb-2 border-bottom pb-2"><%= b.judul %><br><span class="text-muted"><%= b.status %></span></li>
+        <% }) %>
+      </ul>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card card-stat p-3">
+      <h6 class="mb-3"><i class="bi bi-inbox"></i> Pengajuan Layanan Baru</h6>
+      <% if (pengajuanBaru.length === 0) { %><p class="text-muted small">Tidak ada pengajuan baru.</p><% } %>
+      <ul class="list-unstyled small">
+        <% pengajuanBaru.forEach(p => { %>
+          <li class="mb-2 border-bottom pb-2"><%= p.nama_pemohon %><br><span class="text-muted"><%= p.keperluan %></span></li>
+        <% }) %>
+      </ul>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card card-stat p-3">
+      <h6 class="mb-3"><i class="bi bi-envelope"></i> Pesan Masuk Baru</h6>
+      <% if (pesanBaru.length === 0) { %><p class="text-muted small">Tidak ada pesan baru.</p><% } %>
+      <ul class="list-unstyled small">
+        <% pesanBaru.forEach(p => { %>
+          <li class="mb-2 border-bottom pb-2"><%= p.nama %> — <%= p.subjek %></li>
+        <% }) %>
+      </ul>
+    </div>
+  </div>
+</div>

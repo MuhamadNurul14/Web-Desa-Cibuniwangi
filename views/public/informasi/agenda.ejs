@@ -1,0 +1,19 @@
+<div class="container my-5">
+  <h3 class="section-title">Agenda Kegiatan</h3>
+  <% if (data.length === 0) { %><p class="text-muted">Belum ada agenda.</p><% } %>
+  <div class="row g-4">
+    <% data.forEach(a => { %>
+      <div class="col-md-4">
+        <div class="card card-item">
+          <% if (a.poster) { %><img src="/uploads/<%= a.poster %>" class="card-img-top" style="height:160px;object-fit:cover;border-radius:.8rem .8rem 0 0;"><% } %>
+          <div class="card-body">
+            <h6><%= a.nama_kegiatan %></h6>
+            <p class="small text-muted"><i class="bi bi-clock"></i> <%= a.tanggal_mulai %></p>
+            <p class="small text-muted"><i class="bi bi-geo-alt"></i> <%= a.lokasi %></p>
+            <p class="small"><%= a.deskripsi %></p>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>

@@ -1,0 +1,45 @@
+<h5 class="mb-3"><i class="bi bi-geo-alt"></i> Kontak & Lokasi Kantor Desa</h5>
+<div class="card card-stat p-4">
+  <form action="/admin/kontak-desa" method="POST">
+    <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label">Alamat Kantor</label>
+        <textarea name="alamat_kantor" class="form-control" rows="2"><%= kontak.alamat_kantor || '' %></textarea>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Telepon</label>
+        <input type="text" name="telepon" class="form-control" value="<%= kontak.telepon || '' %>">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Email</label>
+        <input type="text" name="email" class="form-control" value="<%= kontak.email || '' %>">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Jam Operasional</label>
+        <input type="text" name="jam_operasional" class="form-control" value="<%= kontak.jam_operasional || '' %>">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Latitude</label>
+        <input type="text" name="latitude" class="form-control" value="<%= kontak.latitude || '' %>">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Longitude</label>
+        <input type="text" name="longitude" class="form-control" value="<%= kontak.longitude || '' %>">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Facebook</label>
+        <input type="text" name="facebook" class="form-control" value="<%= kontak.facebook || '' %>">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Instagram</label>
+        <input type="text" name="instagram" class="form-control" value="<%= kontak.instagram || '' %>">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Youtube</label>
+        <input type="text" name="youtube" class="form-control" value="<%= kontak.youtube || '' %>">
+      </div>
+    </div>
+    <hr class="my-4">
+    <button type="submit" class="btn btn-dark"><i class="bi bi-save"></i> Simpan</button>
+  </form>
+</div>

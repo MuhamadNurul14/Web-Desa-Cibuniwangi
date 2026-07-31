@@ -1,0 +1,32 @@
+<div class="container my-5">
+  <h3 class="section-title">Kontak Kami</h3>
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card card-item p-4">
+        <h6 class="mb-3">Kirim Pesan</h6>
+        <form action="/kontak" method="POST">
+          <div class="mb-3"><label class="form-label">Nama</label><input type="text" name="nama" class="form-control" required></div>
+          <div class="mb-3"><label class="form-label">Email</label><input type="email" name="email" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">No. HP</label><input type="text" name="no_hp" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Subjek</label><input type="text" name="subjek" class="form-control"></div>
+          <div class="mb-3"><label class="form-label">Pesan</label><textarea name="pesan" class="form-control" rows="4" required></textarea></div>
+          <button class="btn btn-success" type="submit"><i class="bi bi-send"></i> Kirim</button>
+        </form>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card card-item p-4">
+        <h6 class="mb-3">Informasi Kontak Kantor Desa</h6>
+        <p><i class="bi bi-geo-alt"></i> <%= kontakInfo.alamat_kantor || '-' %></p>
+        <p><i class="bi bi-telephone"></i> <%= kontakInfo.telepon || '-' %></p>
+        <p><i class="bi bi-envelope"></i> <%= kontakInfo.email || '-' %></p>
+        <p><i class="bi bi-clock"></i> <%= kontakInfo.jam_operasional || '-' %></p>
+        <% if (kontakInfo.latitude && kontakInfo.longitude) { %>
+          <div class="ratio ratio-16x9 mt-3">
+            <iframe src="https://maps.google.com/maps?q=<%= kontakInfo.latitude %>,<%= kontakInfo.longitude %>&z=15&output=embed"></iframe>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>

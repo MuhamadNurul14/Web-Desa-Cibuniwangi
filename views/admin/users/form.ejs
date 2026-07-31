@@ -1,0 +1,45 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="mb-0"><%= title %></h5>
+  <a href="/admin/users" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Kembali</a>
+</div>
+<div class="card card-stat p-4">
+  <form action="<%= mode === 'create' ? '/admin/users' : '/admin/users/' + item.id %>" method="POST">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">Nama</label>
+        <input type="text" name="name" class="form-control" value="<%= item.name || '' %>" required>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" value="<%= item.username || '' %>" required>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-control" value="<%= item.email || '' %>" required>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Role</label>
+        <select name="role" class="form-select">
+          <option value="admin" <%= item.role === 'admin' ? 'selected' : '' %>>Admin</option>
+          <option value="editor" <%= item.role === 'editor' ? 'selected' : '' %>>Editor</option>
+          <option value="superadmin" <%= item.role === 'superadmin' ? 'selected' : '' %>>Super Admin</option>
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Password <% if (mode === 'edit') { %><small class="text-muted">(kosongkan jika tidak diubah)</small><% } %></label>
+        <input type="password" name="password" class="form-control" <%= mode === 'create' ? 'required' : '' %>>
+      </div>
+      <% if (mode === 'edit') { %>
+      <div class="col-md-6 d-flex align-items-center">
+        <div class="form-check mt-4">
+          <input type="checkbox" name="is_active" class="form-check-input" id="is_active" <%= item.is_active ? 'checked' : '' %>>
+          <label class="form-check-label" for="is_active">Akun Aktif</label>
+        </div>
+      </div>
+      <% } %>
+    </div>
+    <hr class="my-4">
+    <button type="submit" class="btn btn-dark"><i class="bi bi-save"></i> Simpan</button>
+    <a href="/admin/users" class="btn btn-outline-secondary">Batal</a>
+  </form>
+</div>

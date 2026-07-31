@@ -1,0 +1,12 @@
+<div class="container my-5">
+  <h3 class="section-title">Pengumuman</h3>
+  <% if (data.length === 0) { %><p class="text-muted">Belum ada pengumuman.</p><% } %>
+  <% data.forEach(p => { %>
+    <div class="card card-item p-3 mb-3">
+      <h6><%= p.judul %></h6>
+      <p class="small text-muted"><%= p.tanggal_mulai %> s/d <%= p.tanggal_selesai %></p>
+      <p style="white-space:pre-line;"><%= p.isi %></p>
+      <% if (p.file_lampiran) { %><a href="/uploads/<%= p.file_lampiran %>" target="_blank" class="btn btn-sm btn-outline-success"><i class="bi bi-download"></i> Unduh Lampiran</a><% } %>
+    </div>
+  <% }) %>
+</div>

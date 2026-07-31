@@ -1,0 +1,24 @@
+<div class="container my-5">
+  <h3 class="section-title">Galeri Foto</h3>
+  <div class="row g-3 mb-5">
+    <% if (foto.length === 0) { %><p class="text-muted">Belum ada foto.</p><% } %>
+    <% foto.forEach(g => { %>
+      <div class="col-md-3 col-6">
+        <img src="/uploads/<%= g.file_path %>" class="img-fluid rounded shadow-sm" style="height:160px;width:100%;object-fit:cover;">
+        <p class="small text-center mt-1"><%= g.judul %></p>
+      </div>
+    <% }) %>
+  </div>
+  <h3 class="section-title">Galeri Video</h3>
+  <div class="row g-3">
+    <% if (video.length === 0) { %><p class="text-muted">Belum ada video.</p><% } %>
+    <% video.forEach(g => { %>
+      <div class="col-md-4">
+        <div class="ratio ratio-16x9">
+          <iframe src="<%= g.video_url %>" allowfullscreen></iframe>
+        </div>
+        <p class="small text-center mt-1"><%= g.judul %></p>
+      </div>
+    <% }) %>
+  </div>
+</div>
