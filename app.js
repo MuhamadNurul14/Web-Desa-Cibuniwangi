@@ -30,6 +30,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: { maxAge: 1000 * 60 * 60 * 8 } // 8 hours
 }));
+
 app.use(flash());
 
 // Make session/flash available to all views
@@ -42,12 +43,23 @@ app.use((req, res, next) => {
 });
 
 // ---- Route groups with different layouts ----
-app.use('/admin', (req, res, next) => { app.set('layout', 'admin/layout'); next(); }, adminRoutes);
-app.use('/', (req, res, next) => { app.set('layout', 'public/layout'); next(); }, publicRoutes);
+app.use('/admin', (req, res, next) => {
+  app.set('layout', 'admin/layout');
+  next();
+}, adminRoutes);
+
+app.use('/', (req, res, next) => {
+  app.set('layout', 'public/layout');
+  next();
+}, publicRoutes);
 
 // ---- 404 handler ----
 app.use((req, res) => {
-  res.status(404).render('public/404', { title: 'Halaman Tidak Ditemukan', profile: {}, kontakInfo: {} });
+  res.status(404).render('public/404', {
+    title: 'Halaman Tidak Ditemukan',
+    profile: {},
+    kontakInfo: {}
+  });
 });
 
 // ---- Error handler ----
@@ -56,15 +68,15 @@ app.use((err, req, res, next) => {
   res.status(500).send(`<h1>500 - Terjadi Kesalahan Server</h1><pre>${err.message}</pre>`);
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✅ Website Desa Cibuniwangi berjalan di http://localhost:${PORT}`);
-  console.log(`🔐 Admin Dashboard: http://localhost:${PORT}/admin/login`);
-});
-// Di bagian akhir file app.js
-
+// ---- Server / Export Handler ----
+// Hanya jalankan listener saat diaktifkan di lokal (bukan Vercel Production)
 if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  const PORT = process.env.PORT || 3000;
+
+  app.listen(PORT, () => {
+    console.log(`✅ Website Desa Cibuniwangi berjalan di http://localhost:${PORT}`);
+    console.log(`🔐 Admin Dashboard: http://localhost:${PORT}/admin/login`);
+  });
 }
 
 // WAJIB: Export app untuk Vercel Serverless Function
