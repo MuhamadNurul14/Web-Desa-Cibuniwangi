@@ -1,74 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const upload = require('../config/upload');
-
-// Import Middleware dengan Safety Fallback
-const authMiddleware = require('../middleware/auth');
-
-// Memastikan isAuthenticated & isSuperAdmin berbentuk fungsi valid
-const isAuthenticated = (typeof authMiddleware === 'function') 
-  ? authMiddleware 
-  : (authMiddleware.isAuthenticated || ((req, res, next) => {
-      if (req.session && req.session.user) return next();
-      req.flash('error', 'Silakan login terlebih dahulu.');
-      return res.redirect('/admin/login');
-    }));
-
-const isSuperAdmin = authMiddleware.isSuperAdmin || ((req, res, next) => {
-  if (req.session && req.session.user && req.session.user.role === 'superadmin') {
-    return next();
-  }
-  req.flash('error', 'Akses ditolak.');
-  return res.redirect('/admin/dashboard');
-});
 
 // Import Controllers
 const authController = require('../controllers/authController');
-const dashboardController = require('../controllers/dashboardController');
-const settingsController = require('../controllers/settingsController');
-const userController = require('../controllers/userController');
-const crudController = require('../controllers/crudController');
-const modules = require('../config/modules');
+const dashboardController = require('../controllers/dashboardController'); // Pastikan file ini ada!
 
-// ---- AUTH ----
-router.get('/login', authController.loginPage);
+// Import Middleware
+const { isAuthenticated } = require('../middleware/auth');
+
+// --- ROUTES ---
+router.get('/login', authController.renderLogin || ((req, res) => res.render('admin/login')));
 router.post('/login', authController.login);
 router.get('/logout', authController.logout);
 
-// Everything below requires login
-router.use(isAuthenticated);
-
-// ---- DASHBOARD ----
-router.get('/dashboard', dashboardController.index);
-router.get('/', (req, res) => res.redirect('/admin/dashboard'));
-
-// ---- SETTINGS: PROFILE DESA & KONTAK (singleton) ----
-router.get('/profile-desa', settingsController.profileForm);
-router.post('/profile-desa', upload.single('logo'), settingsController.profileUpdate);
-router.get('/kontak-desa', settingsController.kontakForm);
-router.post('/kontak-desa', settingsController.kontakUpdate);
-
-// ---- USER MANAGEMENT (superadmin only) ----
-router.get('/users', isSuperAdmin, userController.index);
-router.get('/users/create', isSuperAdmin, userController.create);
-router.post('/users', isSuperAdmin, userController.store);
-router.get('/users/:id/edit', isSuperAdmin, userController.edit);
-router.post('/users/:id', isSuperAdmin, userController.update);
-router.post('/users/:id/delete', isSuperAdmin, userController.destroy);
-
-// ---- GENERIC CRUD FOR EVERY CONTENT MODULE ----
-Object.keys(modules).forEach(moduleKey => {
-  const ctrl = crudController(moduleKey);
-  const base = `/${moduleKey}`;
-  const uploadField = ctrl.cfg ? ctrl.cfg.uploadField : null;
-  const uploadMw = uploadField ? upload.single(uploadField) : upload.none();
-
-  router.get(base, ctrl.index);
-  router.get(`${base}/create`, ctrl.create);
-  router.post(base, uploadMw, ctrl.store);
-  router.get(`${base}/:id/edit`, ctrl.edit);
-  router.post(`${base}/:id`, uploadMw, ctrl.update);
-  router.post(`${base}/:id/delete`, ctrl.destroy);
+// Baris yang kemungkinan error di baris 36:
+router.get('/dashboard', isAuthenticated, (req, res) => {
+  // Pastikan callback-nya adalah fungsi valid
+  if (dashboardController && typeof dashboardController.index === 'function') {
+    return dashboardController.index(req, res);
+  }
+  res.render('admin/dashboard', { user: req.session.user });
 });
 
 module.exports = router;
