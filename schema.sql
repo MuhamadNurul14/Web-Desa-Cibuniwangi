@@ -2,8 +2,8 @@
 -- DATABASE: cibuniwangi
 -- Website Desa Cibuniwangi - Full Schema
 -- =========================================================
-CREATE DATABASE IF NOT EXISTS cibuniwangi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE cibuniwangi;
+-- CREATE DATABASE IF NOT EXISTS cibuniwangi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- USE cibuniwangi;
 
 -- ============================
 -- 1. USERS / ADMIN
