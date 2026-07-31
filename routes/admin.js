@@ -1,8 +1,28 @@
 const express = require('express');
 const router = express.Router();
 const upload = require('../config/upload');
-const { isAuthenticated, isSuperAdmin } = require('../middleware/auth');
 
+// Import Middleware dengan Safety Fallback
+const authMiddleware = require('../middleware/auth');
+
+// Memastikan isAuthenticated & isSuperAdmin berbentuk fungsi valid
+const isAuthenticated = (typeof authMiddleware === 'function') 
+  ? authMiddleware 
+  : (authMiddleware.isAuthenticated || ((req, res, next) => {
+      if (req.session && req.session.user) return next();
+      req.flash('error', 'Silakan login terlebih dahulu.');
+      return res.redirect('/admin/login');
+    }));
+
+const isSuperAdmin = authMiddleware.isSuperAdmin || ((req, res, next) => {
+  if (req.session && req.session.user && req.session.user.role === 'superadmin') {
+    return next();
+  }
+  req.flash('error', 'Akses ditolak.');
+  return res.redirect('/admin/dashboard');
+});
+
+// Import Controllers
 const authController = require('../controllers/authController');
 const dashboardController = require('../controllers/dashboardController');
 const settingsController = require('../controllers/settingsController');
@@ -40,7 +60,7 @@ router.post('/users/:id/delete', isSuperAdmin, userController.destroy);
 Object.keys(modules).forEach(moduleKey => {
   const ctrl = crudController(moduleKey);
   const base = `/${moduleKey}`;
-  const uploadField = ctrl.cfg.uploadField;
+  const uploadField = ctrl.cfg ? ctrl.cfg.uploadField : null;
   const uploadMw = uploadField ? upload.single(uploadField) : upload.none();
 
   router.get(base, ctrl.index);

@@ -11,74 +11,84 @@ const adminRoutes = require('./routes/admin');
 
 const app = express();
 
-// ---- View engine ----
+// ---- Trust Proxy (Wajib di Vercel/Reverse Proxy) ----
+app.set('trust proxy', 1);
+
+// ---- View Engine Setup ----
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(expressLayouts);
-app.set('layout', 'public/layout'); // default layout, overridden per-route group below
+app.set('layout', 'public/layout'); // Default fallback layout
 
-// ---- Middlewares ----
+// ---- Body Parsers & Static Files ----
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride('_method'));
+
+// Handling Static Files
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.set('trust proxy', 1);
-
+// ---- Session Configuration ----
 app.use(session({
   secret: process.env.SESSION_SECRET || 'secret-key-desa-cibuniwangi',
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: process.env.NODE_ENV === 'production', // Wajib true di Vercel (HTTPS)
+    secure: process.env.NODE_ENV === 'production', // Mandatory true on Vercel HTTPS
     sameSite: 'lax',
-    maxAge: 24 * 60 * 60 * 1000 // 1 hari
+    maxAge: 24 * 60 * 60 * 1000 // 1 Hari
   }
 }));
 
 app.use(flash());
 
-// Make session/flash available to all views
+// ---- Global Variables & Dynamic Layout Middleware ----
 app.use((req, res, next) => {
-  res.locals.currentUser = req.session.user || null;
-  res.locals.success = req.flash('success');
-  res.locals.error = req.flash('error');
+  res.locals.currentUser = (req.session && req.session.user) ? req.session.user : null;
+  res.locals.success = req.flash ? req.flash('success') : [];
+  res.locals.error = req.flash ? req.flash('error') : [];
   res.locals.currentPath = req.path;
   next();
 });
 
-// ---- Route groups with different layouts ----
+// ---- Route Groups with Per-Request Layout Isolation ----
+// Menggunakan res.locals.layout jauh lebih aman untuk serverless concurrent requests
 app.use('/admin', (req, res, next) => {
-  app.set('layout', 'admin/layout');
+  res.locals.layout = 'admin/layout';
   next();
 }, adminRoutes);
 
 app.use('/', (req, res, next) => {
-  app.set('layout', 'public/layout');
+  res.locals.layout = 'public/layout';
   next();
 }, publicRoutes);
 
-// ---- 404 handler ----
+// ---- 404 Handler ----
 app.use((req, res) => {
   res.status(404).render('public/404', {
     title: 'Halaman Tidak Ditemukan',
     profile: {},
-    kontakInfo: {}
+    kontakInfo: {},
+    layout: 'public/layout'
   });
 });
 
-// ---- Error handler ----
+// ---- Error Handler ----
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).send(`<h1>500 - Terjadi Kesalahan Server</h1><pre>${err.message}</pre>`);
+  console.error("SERVER ERROR:", err);
+  res.status(500).send(`
+    <div style="padding: 20px; font-family: sans-serif;">
+      <h1 style="color: #dc3545;">500 - Terjadi Kesalahan Server</h1>
+      <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #ddd;">${err.message || err}</pre>
+    </div>
+  `);
 });
 
-// ---- Server / Export Handler ----
-// Hanya jalankan listener saat diaktifkan di lokal (bukan Vercel Production)
-if (process.env.NODE_ENV !== 'production') {
+// ---- Local Development Listener ----
+// Hanya berjalan jika file ini di-run langsung secara lokal (`node app.js`)
+if (require.main === module) {
   const PORT = process.env.PORT || 3000;
-
   app.listen(PORT, () => {
     console.log(`✅ Website Desa Cibuniwangi berjalan di http://localhost:${PORT}`);
     console.log(`🔐 Admin Dashboard: http://localhost:${PORT}/admin/login`);
