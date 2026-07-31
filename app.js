@@ -30,12 +30,18 @@ app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ---- Session Configuration ----
+// Pastikan trust proxy aktif (sudah ada di app.js kamu)
+app.set('trust proxy', 1);
+
+// ---- Session Configuration ----
 app.use(session({
   secret: process.env.SESSION_SECRET || 'secret-key-desa-cibuniwangi',
   resave: false,
   saveUninitialized: false,
+  proxy: true, // WAJIB untuk Vercel agar mengenali HTTPS reverse proxy
   cookie: { 
-    secure: process.env.NODE_ENV === 'production', // Mandatory true on Vercel HTTPS
+    // Di Vercel gunakan secure: true hanya jika protokolnya HTTPS
+    secure: process.env.NODE_ENV === 'production', 
     sameSite: 'lax',
     maxAge: 24 * 60 * 60 * 1000 // 1 Hari
   }
