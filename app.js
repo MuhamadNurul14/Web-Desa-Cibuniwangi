@@ -34,17 +34,46 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('trust proxy', 1);
 
 // ---- Session Configuration ----
+const MySQLStore = require('express-mysql-session')(session);
+
+
+const sessionStore = new MySQLStore({
+
+  host: process.env.DB_HOST,
+
+  port: process.env.DB_PORT || 3306,
+
+  user: process.env.DB_USER,
+
+  password: process.env.DB_PASSWORD,
+
+  database: process.env.DB_NAME
+
+});
+
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'secret-key-desa-cibuniwangi',
+
+  secret: process.env.SESSION_SECRET,
+
   resave: false,
+
   saveUninitialized: false,
-  proxy: true, // WAJIB untuk Vercel agar mengenali HTTPS reverse proxy
-  cookie: { 
-    // Di Vercel gunakan secure: true hanya jika protokolnya HTTPS
-    secure: process.env.NODE_ENV === 'production', 
-    sameSite: 'lax',
-    maxAge: 24 * 60 * 60 * 1000 // 1 Hari
+
+  store: sessionStore,
+
+  cookie: {
+
+    maxAge: 1000 * 60 * 60 * 8,
+
+    httpOnly: true,
+
+    secure: process.env.NODE_ENV === 'production',
+
+    sameSite: 'lax'
+
   }
+
 }));
 
 app.use(flash());
