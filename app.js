@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
 const flash = require('connect-flash');
 const methodOverride = require('method-override');
 const expressLayouts = require('express-ejs-layouts');
@@ -29,38 +30,36 @@ app.use(methodOverride('_method'));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ---- Session Configuration ----
-// Pastikan trust proxy aktif (sudah ada di app.js kamu)
-app.set('trust proxy', 1);
-
-// ---- Session Configuration ----
-const MySQLStore = require('express-mysql-session')(session);
-
-
-const sessionStore = new MySQLStore({
-
+// ---- MySQL Session Store Configuration (Aiven SSL Support) ----
+const dbOptions = {
   host: process.env.DB_HOST,
-
   port: process.env.DB_PORT || 3306,
-
   user: process.env.DB_USER,
-
   password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  // Wajib untuk Aiven Cloud MySQL jika menggunakan SSL
+  ssl: process.env.DB_SSL === 'true' || process.env.NODE_ENV === 'production' 
+    ? { rejectUnauthorized: false } 
+    : false,
+  clearExpired: true,
+  checkExpirationInterval: 900000, // Cek tiap 15 menit
+  expiration: 86400000 // Session berlaku 24 jam
+};
 
-  database: process.env.DB_NAME
-
-});
-
+const sessionStore = new MySQLStore(dbOptions);
 
 // ---- Session Configuration ----
 const sessionSecret = process.env.SESSION_SECRET || 'secret-key-desa-cibuniwangi-2026';
 
 app.use(session({
-  secret: sessionSecret, // Dipastikan berupa string dan tidak akan undefined
+  key: 'admin_session_id',
+  secret: sessionSecret,
+  store: sessionStore, // ✅ WAJIB DIPASANG agar session tersimpan di MySQL Aiven!
   resave: false,
   saveUninitialized: false,
   proxy: true, // Wajib di Vercel agar reverse proxy HTTPS terbaca
   cookie: { 
+    httpOnly: true,
     secure: process.env.NODE_ENV === 'production', 
     sameSite: 'lax',
     maxAge: 24 * 60 * 60 * 1000 // 24 Jam
@@ -79,15 +78,13 @@ app.use((req, res, next) => {
 });
 
 // ---- Route Groups with Per-Request Layout Isolation ----
-// Menggunakan res.locals.layout jauh lebih aman untuk serverless concurrent requests
 app.use('/admin', (req, res, next) => {
   res.locals.layout = 'admin/layout';
   next();
 }, adminRoutes);
 
-// 2. Public Routes (Menggunakan Router terpisah)
+// Public Routes
 app.use('/', (req, res, next) => {
-  // Jika URL diawali /admin tapi tidak matched di adminRoutes, biarkan lewat atau handle 404
   if (req.path.startsWith('/admin')) {
     return next();
   }
@@ -97,7 +94,6 @@ app.use('/', (req, res, next) => {
 
 // ---- 404 Handler ----
 app.use((req, res) => {
-  // Jika URL yang 404 adalah bagian dari /admin
   if (req.originalUrl.startsWith('/admin')) {
     return res.status(404).send(`
       <div style="padding: 40px; font-family: sans-serif; text-align: center;">
@@ -108,7 +104,6 @@ app.use((req, res) => {
     `);
   }
 
-  // Fallback 404 untuk Public
   res.status(404).render('public/404', {
     title: 'Halaman Tidak Ditemukan',
     profile: {},
@@ -128,8 +123,6 @@ app.use((err, req, res, next) => {
   `);
 });
 
-// ---- Local Development Listener ----
-// Hanya berjalan jika file ini di-run langsung secara lokal (`node app.js`)
 if (require.main === module) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
@@ -138,5 +131,4 @@ if (require.main === module) {
   });
 }
 
-// WAJIB: Export app untuk Vercel Serverless Function
 module.exports = app;
