@@ -52,28 +52,19 @@ const sessionStore = new MySQLStore({
 });
 
 
+// ---- Session Configuration ----
+const sessionSecret = process.env.SESSION_SECRET || 'secret-key-desa-cibuniwangi-2026';
+
 app.use(session({
-
-  secret: process.env.SESSION_SECRET,
-
+  secret: sessionSecret, // Dipastikan berupa string dan tidak akan undefined
   resave: false,
-
   saveUninitialized: false,
-
-  store: sessionStore,
-
-  cookie: {
-
-    maxAge: 1000 * 60 * 60 * 8,
-
-    httpOnly: true,
-
-    secure: process.env.NODE_ENV === 'production',
-
-    sameSite: 'lax'
-
+  proxy: true, // Wajib di Vercel agar reverse proxy HTTPS terbaca
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production', 
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000 // 24 Jam
   }
-
 }));
 
 app.use(flash());
