@@ -110,20 +110,25 @@ router.get('/:page', (req, res, next) => {
   // Formatting nama halaman untuk label (contoh: 'profile_desa' -> 'Profile Desa')
   const formattedTitle = page.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
-  // 2. Render via Template Terpusat `admin/crud/index` dengan menyertakan objek `cfg`
+  // 2. Render via Template Terpusat `admin/crud/index` dengan variabel lengkap
   return res.render('admin/crud/index', {
     title: formattedTitle,
     user: req.session ? req.session.user : null,
     activePage: page,
-    // WAJIB: Objek `cfg` untuk memenuhi kebutuhan views/admin/crud/index.ejs
+    moduleKey: page, // ✅ WAJIB: Mencegah 'moduleKey is not defined'
+    
+    // Objek `cfg` lengkap agar tidak error saat diakses di EJS
     cfg: {
       key: page,
+      moduleKey: page,
       label: formattedTitle,
       endpoint: `/admin/${page}`,
-      columns: [] // Kosongkan jika belum ada skema kolom khusus
+      columns: [] 
     },
-    items: [], // Array data default agar tabel tidak error
-    fields: []
+    
+    items: [], // Array data default agar perulangan tabel tidak error
+    fields: [],
+    columns: [] // Antisipasi jika view mengakses 'columns' langsung
   });
 });
 
