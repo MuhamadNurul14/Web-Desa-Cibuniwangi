@@ -103,16 +103,26 @@ router.get('/:page', (req, res, next) => {
   if (fs.existsSync(rootFile)) {
     return res.render(`admin/${page}`, {
       title: page.replace(/_/g, ' ').toUpperCase(),
-      user: req.session.user
+      user: req.session ? req.session.user : null
     });
   }
 
-  // 2. Jika tidak ada file khusus, Render via Template Terpusat `admin/crud/index`
+  // Formatting nama halaman untuk label (contoh: 'profile_desa' -> 'Profile Desa')
+  const formattedTitle = page.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+
+  // 2. Render via Template Terpusat `admin/crud/index` dengan menyertakan objek `cfg`
   return res.render('admin/crud/index', {
-    title: page.replace(/_/g, ' ').toUpperCase(),
-    user: req.session.user,
+    title: formattedTitle,
+    user: req.session ? req.session.user : null,
     activePage: page,
-    items: [], 
+    // WAJIB: Objek `cfg` untuk memenuhi kebutuhan views/admin/crud/index.ejs
+    cfg: {
+      key: page,
+      label: formattedTitle,
+      endpoint: `/admin/${page}`,
+      columns: [] // Kosongkan jika belum ada skema kolom khusus
+    },
+    items: [], // Array data default agar tabel tidak error
     fields: []
   });
 });
